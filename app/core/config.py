@@ -1,2 +1,7 @@
-SUPABASE_URL = "https://cnimyiopqkbdemcuaabh.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNuaW15aW9wcWtiZGVtY3VhYWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4NDk0OTQsImV4cCI6MjA3OTQyNTQ5NH0.-yQZWRX320vMZpxicwvpinOONdVjXRjxds8fBOyq98Y"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
