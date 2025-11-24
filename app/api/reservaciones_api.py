@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, HTTPException
 from app.schemas.reservaciones_schemas import Reservation, ReservationCreate, ReservationUpdate
 from app.db.supabase_client import supabase
@@ -45,7 +44,6 @@ def update_reservacion(id: int, update: ReservationUpdate):
     result = supabase.table("reservaciones").update({"status": update.status}).eq("id", id).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="Reservación no encontrada")
-    return result.data[0]
 
 # Eliminar reservación
 @router.delete("/{id}")
