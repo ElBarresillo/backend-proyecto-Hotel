@@ -16,4 +16,13 @@ class PagoUpdate(BaseModel):
     method: Optional[str] = None
 
 
+# Modelo de respuesta / lectura
+class Pago(PagoBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+
 
