@@ -6,7 +6,10 @@ from app.utils.responses import success_response, error_response
 router = APIRouter(prefix="/pagos", tags=["Pagos"])
 
 #Obtener todos los pagos 
-@router.get("/" , response_model=list[Pago])
+@router.get("/" , response_model=list[Pago],
+            summary="Listar pagos",
+            description="Obtiene la lista de todos los pagos registrados en el sistema.",
+            response_description="Lista de pagos.")
 def listar_pagos():
     resultado = supabase.table("pagos").select("*").execute() 
     return resultado.data

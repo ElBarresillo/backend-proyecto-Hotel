@@ -6,13 +6,18 @@ from app.utils.responses import success_response, error_response
 router = APIRouter(prefix="/cargos", tags=["Cargos"])
 
 # Obtener todos los cargos 
-@router.get("/", response_model=list[Cargo])
+@router.get("/", response_model=list[Cargo], summary="Listar cargos",
+            description="Obtiene la lista de todos los cargos extra registrados en el sistema.",
+            response_description="Lista de cargos extra.")
 def listar_cargos():
     resultado = supabase.table("cargos").select("*").execute()
     return resultado.data
 
 #Obtener pago por ID
-@router.get("/{id}", response_model=list[Cargo])
+@router.get("/{id}", response_model=list[Cargo], summary="Obtener cargo por ID",
+            description="Obtiene la informacion de un cargo extra especifico por su ID.",
+            response_description="Datos del cargo extra solicitado.",
+            responses={404: {"description": "Cargo no encontrado"}})
 def obtener_cargo(id: int):
     resultado = supabase.table("cargos").select("*").eq("id", id).execute()
     if resultado.data:
@@ -20,7 +25,11 @@ def obtener_cargo(id: int):
     raise HTTPException(status_code=404, detail=error_response("Error: Cargo no encontrado"))
 
 #Crear un nuevo Cargo 
-@router.post("/", response_model=Cargo)
+@router.post("/", response_model=Cargo,
+             summary="Crear cargo extra",
+             description="Crea un nuevo cargo extra asociado a una reservacion", 
+             response_description="Cargo extra creado exitosamente.",
+             responses={404: {"description": "Reservacion no encontrada"}})
 def crear_pago(cargo: CargoCreate):
     reservacion = supabase.table("reservaciones").select("*").eq("id", cargo.reservation_id).execute().data
     if not reservacion:
@@ -34,7 +43,11 @@ def crear_pago(cargo: CargoCreate):
     return resultado.data[0]
 
 #Actualizar un Cargo por ID
-@router.put("/{id}", response_model=list[Cargo])
+@router.put("/{id}", response_model=list[Cargo],
+            summary="Actualizar cargo extra", 
+            description="Actualiza la informacion de un cargo extra existente por su ID",
+            response_description="Cargo extra actualizado exitosamente.",
+            responses={404: {"description": "Cargo no encontrado"}})
 def actualizar_cargo(id: int, cargo: CargoCreate):
     resultado = supabase.table("cargos").select("*").eq("id", id).execute()
     if not resultado.data:
@@ -48,7 +61,11 @@ def actualizar_cargo(id: int, cargo: CargoCreate):
     return actualizado.data[0]
 
 #Eliminar un Cargo por ID
-@router.delete("/{id}")
+@router.delete("/{id}",
+               summary="Eliminar cargo extra",
+               description="Elimina un cargo especifico por su ID.",
+               response_description="Cargo extra eliminado exitosamente.",
+               responses={404: {"description": "Cargo no encontrado"}})
 def eliminar_cargo(id: int):
     resulltado = supabase.table("cargos").select("*").eq("id", id).execute()
     if not resulltado.data:

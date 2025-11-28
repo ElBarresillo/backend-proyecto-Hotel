@@ -14,7 +14,6 @@ router = APIRouter(prefix="/huespedes", tags=["Huespedes"])
 def listar_huespedes():
     data = crud.obtenerTodosHuespedes()
     return success_response(data)
-############# Fin de Obtener los huespedes
 
 #Crea un huesped
 @router.post("/")
@@ -27,7 +26,6 @@ def crear_huesped(huesped: Huesped):
     
     data = crud.crearHuesped(huesped)
     return success_response(data)
-############# Fin de Crear un Huesped
 
 #Obtengo un solo huesped por id
 @router.get("/{id}")
