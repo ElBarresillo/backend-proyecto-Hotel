@@ -1,28 +1,45 @@
-from pydantic import BaseModel, Field
+# app/schemas/pagos_schemas.py
+from pydantic import BaseModel
 from typing import Optional
+from datetime import date
+
+class Guest(BaseModel):
+    name: str
+
+    class Config:
+        from_attributes = True
+
+class Reservation(BaseModel):
+    id: int
+    room_id: int
+    guest_id: int
+    checkin_date: date
+    checkout_date: date
+    huespedes: Guest
+
+    class Config:
+        from_attributes = True
 
 class PagoBase(BaseModel):
-    reservation_id: int = Field(..., description="ID de la reservacion asociada al pago", example=10)
-    amount: float = Field(..., description="Monto pagado", example=1500)
-    date: str = Field(..., description="Fecha del pago en formato YYYY-MM-DD", example="2023-11-27")
-    method: str = Field(..., description="Metodo de pago utilizado", example="Tarjeta de credito")
+    reservation_id: int
+    amount: float
+    date: date
+    method: str
+    status: Optional[str] = "Pendiente"
 
 class PagoCreate(PagoBase):
     pass
 
 class PagoUpdate(BaseModel):
-    amount: Optional[float] = Field(None, description="Nuevo monto pagado", example=1600)
-    date: Optional[str] = Field(None, description="Nueva fecha del pago en formato YYYY-MM-DD", example="2023-11-28")
-    method: Optional[str] = Field(None, description="Nuevo metodo de pago", example="Efectivo")
+    reservation_id: Optional[int] = None
+    amount: Optional[float] = None
+    date: Optional[date] = None
+    method: Optional[str] = None
+    status: Optional[str] = None
 
-
-# Modelo de respuesta / lectura
 class Pago(PagoBase):
-    id: int = Field(..., description="ID unico del pago", example=1)
+    id: int
+    reservaciones: Optional[Reservation]
 
     class Config:
         from_attributes = True
-
-
-
-

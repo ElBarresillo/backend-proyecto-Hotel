@@ -1,65 +1,42 @@
-from fastapi import  APIRouter, HTTPException
-from app.db.supabase_client import supabase
-from app.schemas.pagos_schemas import Pago, PagoCreate
+# app/api/pagos_api.py
+from fastapi import APIRouter, HTTPException
+import app.crud.crud_pagos as crud
+from app.schemas.pagos_schemas import PagoCreate, PagoUpdate
 from app.utils.responses import success_response, error_response
 
 router = APIRouter(prefix="/pagos", tags=["Pagos"])
 
-#Obtener todos los pagos 
-@router.get("/" , response_model=list[Pago],
-            summary="Listar pagos",
-            description="Obtiene la lista de todos los pagos registrados en el sistema.",
-            response_description="Lista de pagos.")
+@router.get("/")
 def listar_pagos():
-    resultado = supabase.table("pagos").select("*").execute() 
-    return resultado.data
+    data = crud.obtenerTodosPagos()
+    return success_response(data)
 
-#Obtener un pago por ID
-@router.get("/{id}", response_model=Pago)
+@router.get("/{id}")
 def obtener_pago(id: int):
-    resultado = supabase.table("pagos").select("*").eq("id", id).execute()
-    if resultado.data:
-        return resultado.data[0]
-    raise HTTPException(status_code=404, detail=error_response("Error: Pago no encontrado"))
+    data = crud.obtenerPagoId(id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    return success_response(data)
 
-
-#Crear un nuevo pago
-@router.post("/", response_model=Pago)
+@router.post("/")
 def crear_pago(pago: PagoCreate):
-    # Realizar verificacion de la reservacion
-    reservacion = supabase.table("reservaciones").select("*").eq("id", pago.reservation_id).execute().data
-    if not reservacion:
-        raise HTTPException(status_code=404, detail=error_response("Error: Reservación no encontrada"))
-    # Insertar el pago 
-    data = {
-        "reservation_id": pago.reservation_id,
-        "amount": pago.amount,
-        "date": pago.date,
-        "method": pago.method
-    }
-    resultado = supabase.table("pagos").insert(data).execute()
-    return resultado.data[0]
+    data = crud.crearPago(pago.dict())
+    if not data:
+        raise HTTPException(status_code=400, detail="No se pudo crear el pago")
+    return success_response(data)
 
-#Actualizar un pago por ID
-@router.put("/{id}", response_model=Pago)
-def actualizar_pago(id: int, pago: PagoCreate):
-    resultado = supabase.table("pagos").select("*").eq("id", id).execute()
-    if not resultado.data:
-        raise HTTPException(status_code=404, detail=error_response("Error: Pago no encontrado"))
-    data = {
-        "reservation_id": pago.reservation_id,
-        "amount": pago.amount,
-        "date": pago.date,
-        "method": pago.method
-    }
-    actualizado = supabase.table("pagos").update(data).eq("id", id).execute()
-    return actualizado.data[0]
+@router.put("/{id}")
+def actualizar_pago(id: int, pago: PagoUpdate):
+    existente = crud.obtenerPagoId(id)
+    if not existente:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    data = crud.updatePago(id, pago)
+    return success_response(data)
 
-#Eliminar un pago por ID
 @router.delete("/{id}")
 def eliminar_pago(id: int):
-    resultado = supabase.table("pagos").select("*").eq("id", id).execute()
-    if not resultado.data:
-        raise HTTPException(status_code=404, detail=error_response("Error: Pago no encontrado"))
-    supabase.table("pagos").delete().eq("id", id).execute()
+    existente = crud.obtenerPagoId(id)
+    if not existente:
+        raise HTTPException(status_code=404, detail="Pago no encontrado")
+    crud.deletePago(id)
     return success_response("Pago eliminado correctamente")
